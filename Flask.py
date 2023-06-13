@@ -168,12 +168,12 @@ def add_slide(title, content):
             f"slide.shapes.title\ntitle.text = \"{title}\"\ncontent = slide.placeholders[1]\ncontent.text = \"{content}\"\n"
     return slide
 
-'''
+
 if __name__ == '__main__':
-    folder = app.static_folder
-    delete_files_in_folder(folder)
+    #folder = app.static_folder
+    #delete_files_in_folder(folder)
     app.run(debug=False)
-'''
+
 '''
 with open("temp.pdf", 'rb') as f:
     reader = PdfReader(f)
