@@ -116,11 +116,11 @@ def create_presentation():
         for slide in slides[page]:
             presentation.append(slides[page][slide])
     presentation_code = create_presentation_code(file_name, presentation)
-    with open(f"{app.static_folder}/presentations/{file_name}.py", "w",
+    with open(f"upload/presentations/{file_name}.py", "w",
               encoding='utf-8') as f:
         f.write(presentation_code)
-    if os.path.exists(f"{app.static_folder}/presentations/{file_name}.py"):
-        subprocess.run(['python', f'{app.static_folder}/presentations/{file_name}.py'], shell=True)
+    if os.path.exists(f"upload/presentations/{file_name}.py"):
+        subprocess.run(['python', f'upload/presentations/{file_name}.py'], shell=True)
     return jsonify({'presentation_file_name': f'{file_name}.pptx'})
 
 
