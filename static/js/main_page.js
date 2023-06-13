@@ -70,5 +70,14 @@ async function createPresentation(){
 }
 
 async function upload(){
+    let formData = new FormData();
+    let pptxFile = document.getElementById('pptxFile').files[0];
+    formData.append('pptx', pptxFile);
+    let response = await fetch('http://127.0.0.1:5000/upload', {
+        method: 'POST',
+        body: formData
+    });
 
+    let data = await response.json();
+    document.getElementById('result_upload').innerText = data.text;
 }

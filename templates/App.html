@@ -23,12 +23,15 @@
     <p>Enter Prompt:</p>
     <input type="text" id="prompt" name="prompt">
     <br>
-    <input type="button" value="upload" onclick="upload">
+    <input type="file" id="pptxFile" name="pptxFile" accept=".pptx">
+    <input type="button" value="upload" onclick="upload()">
 </form>
 
 <div id="result_text"></div>
 <div id="result_image"></div>
 <div id="result_presentation"></div>
+<div id="result_upload"></div>
+
 
 
 <script src="{{ url_for('static', filename='js/main_page.js') }}"></script>

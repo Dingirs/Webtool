@@ -12,6 +12,7 @@ from PIL import Image
 import ast
 
 from ChatGPT_post import ChatGPT
+from MSG import MSG
 
 app = Flask(__name__)
 
@@ -124,9 +125,26 @@ def create_presentation():
     return jsonify({'presentation_file_name': f'{file_name}.pptx'})
 
 
+@app.route('/upload', methods=['POST'])
+def upload():
+    if 'pptx' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+    pptx = request.files['pptx']
+    file_name = pptx.filename.replace(".pptx", "")
+    msg = MSG()
+    text = msg.upload_file_from_path("upload/presentations/Holiday Vending Items 2021_presentation.pptx")
+    return jsonify({'text': text})
+
+
+
 @app.route('/images/<filename>', methods=['GET'])
 def get_image(filename):
     return send_from_directory(app.static_folder + "/images/", filename)
+
+
+@app.route('/presentations/<filename>', methods=['GET'])
+def get_presentation(filename):
+    return send_from_directory("upload/presentations/", filename)
 
 
 @app.route('/')
@@ -168,11 +186,13 @@ def add_slide(title, content):
             f"slide.shapes.title\ntitle.text = \"{title}\"\ncontent = slide.placeholders[1]\ncontent.text = \"{content}\"\n"
     return slide
 
-
+'''
 if __name__ == '__main__':
-    #folder = app.static_folder
-    #delete_files_in_folder(folder)
-    app.run(debug=False)
+    # folder = app.static_folder
+    # delete_files_in_folder(folder)
+    app.run(debug=True)
+'''
+
 
 '''
 with open("temp.pdf", 'rb') as f:
@@ -210,6 +230,3 @@ with open("temp.pdf", 'rb') as f:
     if os.path.exists(f"{app.static_folder}/presentations/test_presentation.pptx"):
         subprocess.run(['python', f'static/presentations/{file_name}.py'], shell = True)
 '''
-
-
-
