@@ -1,9 +1,5 @@
-import re
-import json
-
-import configparser
 import requests
-import os
+import config
 
 
 
@@ -13,10 +9,7 @@ class ChatGPT:
         self.request = request
         #BEARER_TOKEN = os.environ.get("BEARER_TOKEN") or "BEARER_TOKEN_HERE"
         self.url = "https://api.openai.com/v1/chat/completions"
-        config = configparser.ConfigParser()
-        config.read('config.cfg')
-        chagpt_setting = config['chatgpt']
-        api_key = chagpt_setting['api_key']
+        api_key = config.CHATGPT_API_KEY
         self.headers = {
             "Authorization": "Bearer " + api_key,
             "Content-Type": "application/json"

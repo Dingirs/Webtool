@@ -3,18 +3,20 @@ import shutil
 import subprocess
 import threading
 
-from flask import Flask, request, jsonify, render_template, send_from_directory
+import webbrowser
+
+from flask import Flask, request, jsonify, render_template, send_from_directory, session
 from PyPDF2 import PdfReader
 import fitz
 import os
-import uuid
 from PIL import Image
 import ast
+import identity.web
+from flask_session import Session
 
 from ChatGPT_post import ChatGPT
 from MSG import MSG
-
-app = Flask(__name__)
+import config
 
 
 class ThreadWithReturnValue(threading.Thread):
@@ -25,6 +27,24 @@ class ThreadWithReturnValue(threading.Thread):
     def join(self):
         threading.Thread.join(self)
         return self._return
+
+
+app = Flask(__name__)
+app.config.from_object(config)
+Session(app)
+auth = identity.web.Auth(
+    session=session,
+    authority=app.config["AUTHORITY"],
+    client_id=app.config["CLIENT_ID"],
+    client_credential=app.config["CLIENT_SECRET"],
+)
+
+
+from werkzeug.middleware.proxy_fix import ProxyFix
+
+app.wsgi_app = ProxyFix(
+    app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
+)
 
 
 @app.route('/extract_text', methods=['POST'])
@@ -131,10 +151,17 @@ def upload():
         return jsonify({'error': 'No file provided'}), 400
     pptx = request.files['pptx']
     file_name = pptx.filename.replace(".pptx", "")
-    msg = MSG()
-    text = msg.upload_file_from_path("upload/presentations/Holiday Vending Items 2021_presentation.pptx")
+    webbrowser.open(auth.log_in(scopes=config.SCOPE,
+                redirect_uri='https://onedrive.live.com/')['auth_uri'])
+    token = auth.get_token_for_user(config.SCOPE)
+    if "error" in token:
+        return jsonify({'text': 'No token'}), 400
+    msg = MSG(token)
+    text = msg.upload_file(pptx, file_name)
+    webbrowser.open('https://onedrive.live.com/')
+    # msg = MSG()
+    # text = msg.upload_file(pptx, file_name)
     return jsonify({'text': text})
-
 
 
 @app.route('/images/<filename>', methods=['GET'])
@@ -186,13 +213,11 @@ def add_slide(title, content):
             f"slide.shapes.title\ntitle.text = \"{title}\"\ncontent = slide.placeholders[1]\ncontent.text = \"{content}\"\n"
     return slide
 
-'''
+
 if __name__ == '__main__':
     # folder = app.static_folder
     # delete_files_in_folder(folder)
     app.run(debug=True)
-'''
-
 
 '''
 with open("temp.pdf", 'rb') as f:

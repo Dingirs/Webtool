@@ -1,17 +1,13 @@
 import os
 import configparser
 import requests
-from ms_graph import generate_access_token, GRAPH_API_ENDPOINT
 
+
+GRAPH_API_ENDPOINT = 'https://graph.microsoft.com/v1.0'
 
 class MSG:
-    def __init__(self):
-        config = configparser.ConfigParser()
-        config.read('config.cfg')
-        azure_setting = config['azure']
-        APP_ID = azure_setting['clientId']
-        SCOPE = [azure_setting['graphUserScopes']]
-        self.access_token = generate_access_token(APP_ID, SCOPE)
+    def __init__(self, token):
+        self.access_token = token
 
     def upload_file_from_path(self, file_path):
         headers = {
@@ -29,7 +25,7 @@ class MSG:
             data=media_content
         )
 
-        return response.json()
+        return response.text
 
     def upload_file(self, file, file_name):
         headers = {
@@ -43,7 +39,7 @@ class MSG:
             data=file
         )
 
-        return response.json()
+        return response.text
 
 
 #msg = MSG()
