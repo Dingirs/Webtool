@@ -123,7 +123,7 @@ def create_presentation():
         if page == -1 or page == p:
             text = reader.pages[p].extract_text()
             th = ThreadWithReturnValue(target=ChatGPT().create_presentation,
-                                       args=(text, f"page{p}", f"{app.static_folder}/presentations", p, prompt))
+                                       args=(text, f"page{p}", f"upload/presentations", p, prompt))
             threads.append(th)
             th.start()
     for th in threads:
