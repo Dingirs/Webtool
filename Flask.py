@@ -136,7 +136,7 @@ def create_presentation():
     for page in sorted(slides):
         for slide in slides[page]:
             presentation.append(slides[page][slide])
-    presentation_code = create_presentation_code(file_name, presentation)
+    presentation_code = ChatGPT.create_presentation_code(file_name, presentation)
     with open(f"upload/presentations/{file_name}.py", "w",
               encoding='utf-8') as f:
         f.write(presentation_code)
@@ -192,26 +192,6 @@ def delete_files_in_folder(folder_path):
                 print(e)
 
 
-def create_presentation_code(file_name, slides):
-    presentation = "from pptx import Presentation\nfrom pptx.util import Inches, Pt\nprs = Presentation()\n"
-    for slide in slides:
-        title = slide["Title"]
-        title = title.replace("\"", "\\" + "\"")
-        title = title.replace("\n", r"\n" + "\"" + " \\" + "\n" + "\"")
-        title = title.replace("\'", "\\" + "\'")
-        content = slide["Content"]
-        content = content.replace("\"", "\\" + "\"")
-        content = content.replace("\n", r"\n" + "\"" + " \\" + "\n" + "\"")
-        content = content.replace("\'", "\\" + "\'")
-        presentation += add_slide(title, content)
-    presentation += f"\nprs.save('static/presentations/{file_name}.pptx')"
-    return presentation
-
-
-def add_slide(title, content):
-    slide = f"slide_layout = prs.slide_layouts[1]\nslide = prs.slides.add_slide(slide_layout)\ntitle = " \
-            f"slide.shapes.title\ntitle.text = \"{title}\"\ncontent = slide.placeholders[1]\ncontent.text = \"{content}\"\n"
-    return slide
 
 
 if __name__ == '__main__':

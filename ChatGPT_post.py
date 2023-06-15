@@ -92,3 +92,22 @@ class ChatGPT:
             return file_page_index, "error"
 
 
+def create_presentation_code(file_name, slides):
+    presentation = "from pptx import Presentation\nfrom pptx.util import Inches, Pt\nprs = Presentation()\n"
+    for slide in slides:
+        title = slide["Title"]
+        title = title.replace("\"", "\\" + "\"")
+        title = title.replace("\n", r"\n" + "\"" + " \\" + "\n" + "\"")
+        title = title.replace("\'", "\\" + "\'")
+        content = slide["Content"]
+        content = content.replace("\"", "\\" + "\"")
+        content = content.replace("\n", r"\n" + "\"" + " \\" + "\n" + "\"")
+        content = content.replace("\'", "\\" + "\'")
+        presentation += add_slide(title, content)
+    presentation += f"\nprs.save('static/presentations/{file_name}.pptx')"
+    return presentation
+
+def add_slide(title, content):
+    slide = f"slide_layout = prs.slide_layouts[1]\nslide = prs.slides.add_slide(slide_layout)\ntitle = " \
+            f"slide.shapes.title\ntitle.text = \"{title}\"\ncontent = slide.placeholders[1]\ncontent.text = \"{content}\"\n"
+    return slide
