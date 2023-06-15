@@ -2,19 +2,16 @@ import requests
 import config
 
 
-
-
 class ChatGPT:
     def __init__(self, request={}):
         self.request = request
-        #BEARER_TOKEN = os.environ.get("BEARER_TOKEN") or "BEARER_TOKEN_HERE"
+        # BEARER_TOKEN = os.environ.get("BEARER_TOKEN") or "BEARER_TOKEN_HERE"
         self.url = "https://api.openai.com/v1/chat/completions"
         api_key = config.CHATGPT_API_KEY
         self.headers = {
             "Authorization": "Bearer " + api_key,
             "Content-Type": "application/json"
         }
-
 
     def normal_chat(self, user_input):
         self.request["messages"].append({"role": "user", "content": user_input})
@@ -92,6 +89,7 @@ class ChatGPT:
             return file_page_index, "error"
 
 
+# create a code template for creating a presentation
 def create_presentation_code(file_name, slides):
     presentation = "from pptx import Presentation\nfrom pptx.util import Inches, Pt\nprs = Presentation()\n"
     for slide in slides:
@@ -106,6 +104,7 @@ def create_presentation_code(file_name, slides):
         presentation += add_slide(title, content)
     presentation += f"\nprs.save('static/presentations/{file_name}.pptx')"
     return presentation
+
 
 def add_slide(title, content):
     slide = f"slide_layout = prs.slide_layouts[1]\nslide = prs.slides.add_slide(slide_layout)\ntitle = " \

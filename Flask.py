@@ -103,22 +103,33 @@ def extract_images():
 
 @app.route('/create_presentation', methods=['POST'])
 def create_presentation():
+    #extract texts from pdf
     if 'pdf' not in request.files:
         return jsonify({'error': 'No file provided'}), 400
+    #get pdf file
     pdf = request.files['pdf']
+    #get file name
     file_name = pdf.filename.replace(".pdf", "_presentation")
+    #get pdf content
     reader = PdfReader(pdf)
+    #page default value is -1, which means all pages
     page = -1
+    #addition prompt for ChatGPT
     prompt = ""
+    #get page and prompt from request
     if 'page' in request.form and request.form['page'] != "":
         page = int(request.form['page'])
     if 'prompt' in request.form:
         prompt = request.form['prompt']
+    #create threads for each page
     threads = []
+    #
     slides = {}
     presentation = []
     errors = {}
     text = ""
+    #create threads for each page, and each thread will invoke ChatGPT to create presentation texts for each page
+    #Chatgpt 4.0 has a limit of 8k tokens, so we need to split the text into several parts
     for p in range(len(reader.pages)):
         if page == -1 or page == p:
             text = reader.pages[p].extract_text()
@@ -126,20 +137,27 @@ def create_presentation():
                                        args=(text, f"page{p}", f"upload/presentations", p, prompt))
             threads.append(th)
             th.start()
+    #get the result from each thread
     for th in threads:
+        #key is the page number, value is the result from ChatGPT(json format)
         key, value = th.join()
         if value == "error":
             errors[key] = value
         else:
+            #convert json to dictionary. There are several slides for each page
             value = ast.literal_eval(value)
             slides[key] = value
     for page in sorted(slides):
         for slide in slides[page]:
+            #add each slide to the presentation in order
             presentation.append(slides[page][slide])
+    #create presentation code
     presentation_code = ChatGPT.create_presentation_code(file_name, presentation)
+    #save presentation code to a file
     with open(f"upload/presentations/{file_name}.py", "w",
               encoding='utf-8') as f:
         f.write(presentation_code)
+    #run the presentation code to create a pptx file
     if os.path.exists(f"upload/presentations/{file_name}.py"):
         subprocess.run(['python', f'upload/presentations/{file_name}.py'], shell=True)
     return jsonify({'presentation_file_name': f'{file_name}.pptx'})
