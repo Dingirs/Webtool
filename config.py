@@ -1,4 +1,4 @@
-import uuid
+
 #AZURE
 CLIENT_ID = 'ID'
 CLIENT_SECRET = 'SECRET'
