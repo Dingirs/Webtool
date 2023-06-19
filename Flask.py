@@ -224,11 +224,12 @@ def delete_files_in_folder(folder_path):
             except Exception as e:
                 print(e)
 
-
+'''
 if __name__ == '__main__':
     # folder = app.static_folder
     # delete_files_in_folder(folder)
     app.run(host='localhost', debug=True)
+'''
 
 '''
 with open("temp.pdf", 'rb') as f:

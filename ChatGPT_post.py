@@ -1,5 +1,7 @@
 import requests
 import config
+import SAGE
+import json
 
 
 class ChatGPT:
@@ -77,8 +79,8 @@ class ChatGPT:
                                                            "should be in the same slide." + prompt})
         res = requests.request("post", self.url, json=self.request, headers=self.headers)
         try:
-            j = res.json()["choices"][0]["message"]["content"]
-            return file_page_index, j
+            presentation_text = res.json()["choices"][0]["message"]["content"]
+            return file_page_index, presentation_text
             # with open(output_dir + f"/{file_name}_presentation.py", "w",
             #          encoding='utf-8') as f:
             #    f.write(create_presentation_code(file_name, j))
@@ -87,6 +89,68 @@ class ChatGPT:
                       encoding='utf-8') as f:
                 f.write(res.text)
             return file_page_index, "error"
+
+    def function_calling(self, user_input):
+        self.request = {
+            "model": "gpt-4-0613",
+            "messages": [{
+                "role": "system",
+                "content": "You are a export assistance for searching products from SAGE through API.\n"}
+            ],
+            "functions": [
+                {
+                    "name": "SAGE_search",
+                    "description": "Search for SAGE products through SAGE API",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "keyword": {
+                                "type": "string",
+                                "description": "The keyword to search for"
+                            },
+                            "color": {
+                                "type": "string",
+                                "description": "The color of the product"
+                            },
+                        },
+                        "required": ["keyword"],
+                    },
+                }
+            ],
+            "function_call": "auto"
+        }
+        self.request["messages"].append({"role": "user", "content": user_input})
+        response = requests.request("post", self.url, json=self.request, headers=self.headers)
+        try:
+            response_message = response.json()["choices"][0]["message"]
+            if response_message.get("function_call"):
+                available_functions = {
+                    "SAGE_search": SAGE.SAGE_search
+                }
+                function_name = response_message["function_call"]["name"]
+                fuction_to_call = available_functions[function_name]
+                function_args = json.loads(response_message["function_call"]["arguments"])
+                if not function_args.get("color"):
+                    function_args["color"] = ""
+                function_response = fuction_to_call(
+                    keyword=function_args.get("keyword"),
+                    color=function_args.get("color"),
+                )
+                self.request["messages"].append(response_message)
+                self.request["messages"].append(
+                    {"role": "function", "name": function_name, "content": function_response})
+                second_response = requests.request("post", self.url, json=self.request, headers=self.headers)
+                try:
+                    return second_response.json()["choices"][0]["message"]["content"]
+                except:
+                    return second_response.json()
+        except:
+            return response.json()
+
+
+# test
+user_input = "I want to search for a product with keyword 'pen' and color 'red'"
+print(ChatGPT().function_calling(user_input))
 
 
 # create a code template for creating a presentation
