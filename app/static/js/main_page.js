@@ -3,7 +3,7 @@ async function extractText() {
     let pdfFile = document.getElementById('pdfFile').files[0];
     formData.append('pdf', pdfFile);
 
-    let response = await fetch('http://localhost:5000/extract_text', {
+    let response = await fetch('http://localhost:6060/extract_text', {
         method: 'POST',
         body: formData
     });
@@ -21,7 +21,7 @@ async function extractImages() {
     formData.append('minWidth', minWidth);
     formData.append('minHeight', minHeight);
 
-    let response = await fetch('http://localhost:5000/extract_images', {
+    let response = await fetch('http://localhost:6060/extract_images', {
         method: 'POST',
         body: formData
     });
@@ -32,13 +32,13 @@ async function extractImages() {
     resultDiv.innerHTML = '';
     for (let filename of data.image_filenames) {
         let a = document.createElement('a');
-        a.href = `http://127.0.0.1:5000/images/${filename}`;
+        a.href = `http://localhost:6060/images/${filename}`;
         a.download = filename;
         a.textContent = `Download ${filename}`;
         resultDiv.appendChild(a);
         resultDiv.appendChild(document.createElement('br'));
         let b = document.createElement('img');
-        b.src = `http://127.0.0.1:5000/images/${filename}`;
+        b.src = `http://localhost:6060/images/${filename}`;
         b.alt = filename;
         resultDiv.appendChild(b);
         resultDiv.appendChild(document.createElement('br'));
@@ -54,7 +54,7 @@ async function createPresentation(){
     formData.append('page', page);
     formData.append('prompt', prompt);
 
-    let response = await fetch('http://localhost:5000/create_presentation', {
+    let response = await fetch('http://localhost:6060/create_presentation', {
         method: 'POST',
         body: formData
     });
@@ -63,7 +63,7 @@ async function createPresentation(){
     let resultDiv = document.getElementById('result_presentation')
     let filename = data.presentation_file_name;
     let  a = document.createElement('a');
-    a.href = `http://127.0.0.1:5000/presentations/${filename}`;
+    a.href = `http://localhost:6060/presentations/${filename}`;
     a.download = filename;
     a.textContent = `Download ${filename}`;
     resultDiv.appendChild(a);
@@ -73,13 +73,13 @@ async function upload(){
     let formData = new FormData();
     let pptxFile = document.getElementById('pptxFile').files[0];
     formData.append('pptx', pptxFile);
-    let response = await fetch('http://localhost:5000/upload', {
+    let response = await fetch('http://localhost:6060/upload', {
         method: 'POST',
         body: formData
     });
     let data = await response.json();
     if (data.text == 'login'){
-        window.location.href = "http://localhost:5000/login";
+        window.location.href = "http://localhost:6060/login";
     }
     else{
         document.getElementById('result_upload').innerText = 'Upload success';

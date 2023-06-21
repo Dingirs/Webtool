@@ -64,8 +64,8 @@ db.sqlite3-journal
 # Flask stuff:
 instance/
 .webassets-cache
-static/texts
-static/images
+app/static/texts
+app/static/images
 flask_session
 
 # Scrapy stuff:
@@ -130,7 +130,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-config.py
+app/config.py
 
 # Spyder project settings
 .spyderproject

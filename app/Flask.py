@@ -12,8 +12,9 @@ import os
 from PIL import Image
 import ast
 import identity.web
-from flask_session import Session
 
+from app import ChatGPT_post
+from flask_session import Session
 from ChatGPT_post import ChatGPT
 from MSG import MSG
 import config
@@ -150,7 +151,7 @@ def create_presentation():
             # add each slide to the presentation in order
             presentation.append(slides[page][slide])
     # create presentation code
-    presentation_code = ChatGPT.create_presentation_code(file_name, presentation)
+    presentation_code = ChatGPT_post.create_presentation_code(file_name, presentation)
     # save presentation code to a file
     with open(f"upload/presentations/{file_name}.py", "w",
               encoding='utf-8') as f:
@@ -165,7 +166,7 @@ def create_presentation():
 def login():
     return render_template("login.html", **auth.log_in(
         scopes=config.SCOPE,  # Have user consent to scopes during log-in
-        redirect_uri='http://localhost:5000/authorized',
+        redirect_uri='http://localhost:6060/authorized',
         # Optional. If present, this absolute URL must match your app's redirect_uri registered in Azure Portal
     ))
 
@@ -224,12 +225,12 @@ def delete_files_in_folder(folder_path):
             except Exception as e:
                 print(e)
 
-'''
+
 if __name__ == '__main__':
     # folder = app.static_folder
-    # delete_files_in_folder(folder)
-    app.run(host='localhost', debug=True)
-'''
+    # delete_files_in_folder(folder+"/images")
+    # delete_files_in_folder(folder+"/texts")
+    app.run(host='localhost', port=6060, debug=True)
 
 '''
 with open("temp.pdf", 'rb') as f:

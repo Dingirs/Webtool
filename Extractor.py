@@ -3,7 +3,7 @@ import fitz  # PyMuPDF
 import io
 from PIL import Image # pillow
 import threading
-from ChatGPT_post import ChatGPT
+from app.ChatGPT_post import ChatGPT
 
 
 class Extractor:

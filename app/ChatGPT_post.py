@@ -149,8 +149,8 @@ class ChatGPT:
 
 
 # test
-user_input = "I want to search for a product with keyword 'pen' and color 'red'"
-print(ChatGPT().function_calling(user_input))
+#user_input = "I want to give a present to my mom, can you give me some suggestions?"
+#print(ChatGPT().function_calling(user_input))
 
 
 # create a code template for creating a presentation
@@ -166,7 +166,7 @@ def create_presentation_code(file_name, slides):
         content = content.replace("\n", r"\n" + "\"" + " \\" + "\n" + "\"")
         content = content.replace("\'", "\\" + "\'")
         presentation += add_slide(title, content)
-    presentation += f"\nprs.save('static/presentations/{file_name}.pptx')"
+    presentation += f"\nprs.save('upload/presentations/{file_name}.pptx')"
     return presentation
 
 
