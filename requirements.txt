@@ -6,3 +6,5 @@ PyMuPDF==1.22.2
 PyPDF2==3.0.1
 Requests==2.31.0
 Werkzeug==2.3.4
+python-pptx==0.6.21
+

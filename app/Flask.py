@@ -45,7 +45,8 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 app.wsgi_app = ProxyFix(
     app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
 )
-
+root_dir = os.path.dirname(os.path.abspath(__file__))
+presentation_path = root_dir + '/upload/presentations/'
 
 @app.route('/extract_text', methods=['POST'])
 def extract_text():
@@ -76,7 +77,6 @@ def extract_images():
         min_height = request.form['minHeight']
     if 'pdf' not in request.files:
         return jsonify({'error': 'No file provided'}), 400
-    os.remove("temp.pdf")
     pdf = request.files['pdf']
     pdf.save("temp.pdf")
     file_name = pdf.filename.replace(".pdf", "")
@@ -103,6 +103,7 @@ def extract_images():
 
 @app.route('/create_presentation', methods=['POST'])
 def create_presentation():
+
     # extract texts from pdf
     if 'pdf' not in request.files:
         return jsonify({'error': 'No file provided'}), 400
@@ -133,7 +134,7 @@ def create_presentation():
         if page == -1 or page == p:
             text = reader.pages[p].extract_text()
             th = ThreadWithReturnValue(target=ChatGPT().create_presentation,
-                                       args=(text, f"page{p}", f"upload/presentations", p, prompt))
+                                       args=(text, f"page{p}", presentation_path, p, prompt))
             threads.append(th)
             th.start()
     # get the result from each thread
@@ -151,15 +152,16 @@ def create_presentation():
             # add each slide to the presentation in order
             presentation.append(slides[page][slide])
     # create presentation code
-    presentation_code = ChatGPT_post.create_presentation_code(file_name, presentation)
+    presentation_code = ChatGPT_post.create_presentation_code(file_name, presentation, presentation_path)
     # save presentation code to a file
-    with open(f"upload/presentations/{file_name}.py", "w",
-              encoding='utf-8') as f:
+    with open(f"{presentation_path}{file_name}.py", "w") as f:
         f.write(presentation_code)
     # run the presentation code to create a pptx file
-    if os.path.exists(f"upload/presentations/{file_name}.py"):
-        subprocess.run(['python', f'upload/presentations/{file_name}.py'], shell=True)
-    return jsonify({'presentation_file_name': f'{file_name}.pptx'})
+
+    if os.path.exists(f"{presentation_path}{file_name}.py"):
+        subprocess.run(['python', f'{presentation_path}{file_name}.py'])
+        return jsonify({'presentation_file_name': f'{file_name}.pptx'})
+    return jsonify({'error': "error"})
 
 
 @app.route('/login')
@@ -205,7 +207,7 @@ def get_image(filename):
 
 @app.route('/presentations/<filename>', methods=['GET'])
 def get_presentation(filename):
-    return send_from_directory("upload/presentations/", filename)
+    return send_from_directory(presentation_path, filename)
 
 
 @app.route('/')
@@ -230,7 +232,7 @@ if __name__ == '__main__':
     # folder = app.static_folder
     # delete_files_in_folder(folder+"/images")
     # delete_files_in_folder(folder+"/texts")
-    app.run(host='localhost', port=6060, debug=True)
+    app.run(host='0.0.0.0', port=6060, debug=True)
 
 '''
 with open("temp.pdf", 'rb') as f:

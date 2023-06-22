@@ -41,4 +41,4 @@ class MSG:
         return response.text
 
 # msg = MSG()
-# print(msg.upload_file_from_path("upload/presentations/Holiday Vending Items 2021_presentation.pptx"))
+# print(msg.upload_file_from_path("upload/presentations/Template.pptx"))
