@@ -13,7 +13,7 @@ from PIL import Image
 import ast
 import identity.web
 
-from app import ChatGPT_post
+import ChatGPT_post
 from flask_session import Session
 from ChatGPT_post import ChatGPT
 from MSG import MSG
